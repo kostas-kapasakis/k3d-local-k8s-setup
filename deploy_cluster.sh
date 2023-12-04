@@ -33,7 +33,8 @@ createClusterCMD="cluster create $k8sClusterName --registry-use k3d-$registryNam
 kong_chart="https://charts.konghq.com"
 rabbitmq_chart="oci://registry-1.docker.io/bitnamicharts/rabbitmq"
 postgres_chart="oci://registry-1.docker.io/bitnamicharts/postgresql"
-
+prometheus_chart="https://prometheus-community.github.io/helm-charts"
+grafana_chart="https://grafana.github.io/helm-charts"
 #-------------------------------------------------
 
 
@@ -68,14 +69,21 @@ function deploy_required_components {
   $K8sCmd create namespace local
 	### Kong 	
 	$HelmCMD repo add kong "$kong_chart"
+    $HelmCMD repo add prometheus-community "$prometheus_chart"
+	$HelmCMD repo add grafana "$grafana_chart"
+
 	$HelmCMD repo update
-	$HelmCMD install kong/ingress --generate-name
+	$HelmCMD install kong kong/ingress -n kong --create-namespace 
 	### rabbitmq
 	$HelmCMD install rabbitmq "$rabbitmq_chart"
 	### postgres server -1
 	$HelmCMD install postgres1 "$postgres_chart"
 	### postgres server -2
 	$HelmCMD install postgres2 "$postgres_chart"
+	### Prometheus
+	$HelmCMD install prometheus prometheus-community/prometheus
+	
+	$HelmCMD install grafana grafana/grafana
 }
 
 # If docker-registry container exists then ask the user if he/she wants tor reset it

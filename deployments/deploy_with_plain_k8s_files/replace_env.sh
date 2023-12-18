@@ -4,7 +4,7 @@ applicationK8sDefinitionDirectory=$1
 environmentValuesFile=$2
 
 replace_environment_variables(){
-  extension="*.yml"
+  extension="*.yaml"
   
   cp -a $applicationK8sDefinitionDirectory ./
 

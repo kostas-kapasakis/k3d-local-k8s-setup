@@ -27,12 +27,9 @@ deployingClusterRequiredAppsLogMessage="(*) DEPLOYING HELM APPLICATIONS"
 createClusterCMD="cluster create $k8sClusterName --registry-use k3d-$registryName:$registryPort"
 
 ###
-# Required Cluster Apps
+# Monitoring Cluster Apps
 ###
 
-kong_chart="https://charts.konghq.com"
-rabbitmq_chart="oci://registry-1.docker.io/bitnamicharts/rabbitmq"
-postgres_chart="oci://registry-1.docker.io/bitnamicharts/postgresql"
 prometheus_chart="https://prometheus-community.github.io/helm-charts"
 grafana_chart="https://grafana.github.io/helm-charts"
 #-------------------------------------------------
@@ -54,7 +51,8 @@ function initialize_cluster {
 				echo $createClusterCmdLogMessage
 					$K3dCMD $createClusterCMD
 				echo $deployingClusterRequiredAppsLogMessage
-					deploy_required_components
+					create_local_namespace
+					deploy_monitoring_components
 				break;;
 			no )
 				exit;;
@@ -65,24 +63,18 @@ function initialize_cluster {
 	exit 0;
 }
 
-function deploy_required_components {
-  $K8sCmd create namespace local
-	### Kong 	
-	$HelmCMD repo add kong "$kong_chart"
+function create_local_namespace {
+    $K8sCmd create namespace local
+}
+
+function deploy_monitoring_components {
+
     $HelmCMD repo add prometheus-community "$prometheus_chart"
 	$HelmCMD repo add grafana "$grafana_chart"
-
-	$HelmCMD repo update
-	$HelmCMD install kong kong/ingress -n kong --create-namespace 
-	### rabbitmq
-	$HelmCMD install rabbitmq "$rabbitmq_chart"
-	### postgres server -1
-	$HelmCMD install postgres1 "$postgres_chart"
-	### postgres server -2
-	$HelmCMD install postgres2 "$postgres_chart"
-	### Prometheus
-	$HelmCMD install prometheus prometheus-community/prometheus
 	
+	$HelmCMD repo update
+	
+	$HelmCMD install prometheus prometheus-community/prometheus
 	$HelmCMD install grafana grafana/grafana
 }
 

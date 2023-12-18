@@ -22,7 +22,7 @@ build_and_push_docker_image(){
 deploy_app_files(){
   kubectl apply -f ./api/secret.yml
   kubectl apply -f ./api/service.yml
-  kubectl apply -f ./api/ingress.yml
+  kubectl apply -f ./api/serviceMonitor.yml
   kubectl apply -f ./api/deployment.yml
 }
 

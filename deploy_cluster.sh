@@ -68,8 +68,7 @@ function create_local_namespace {
 }
 
 function deploy_monitoring_components {
-
-    $HelmCMD repo add prometheus-community "$prometheus_chart"
+	$HelmCMD repo add prometheus-community "$prometheus_chart"
 	$HelmCMD repo add grafana "$grafana_chart"
 	
 	$HelmCMD repo update
